@@ -10,16 +10,22 @@
 #include <signal.h>
 
 int ew_getargs(char *cmd, char **argv);
+int checkTaskOption(char *argv);
 void ew_exit();
 void ew_ctrlc(int sig);
 void ew_ctrlz(int sig, int flag);
+void ew_pwd();
+void pwd_print();
 void ew_cd(int argc, char* argv[]);
 void ew_mkdir(int argc, char *argv[]);
 void ew_rmdir(int argc, char *argv[]);
+void ew_ln(char *src, char *target);
 void ew_cp(int argc, char *argv[]);
 void ew_rm(int argc, char *argv[]);
 void ew_mv(int argc, char *argv[]);
 void ew_cat(int argc, char *argv[]);
+void run(int i, int t_opt, int argc, char **argv);
+void run_pipe(int i, char **argv);
 
 void main(){
     char buf[256];
@@ -145,6 +151,12 @@ void ew_ctrlz(int sig, int flag){
     signal(sig, ew_ctrlz);
 }
 
+void ew_pwd(){
+    char buf[1024];
+    getcwd(buf, 1024);
+    printf("%s\n", buf);
+}
+
 void ew_cd(int argc, char *argv[]){
     char *path;
 
@@ -163,6 +175,12 @@ void ew_mkdir(int argc, char *argv[]){
 
 void ew_rmdir(int argc, char *argv[]){
    rmdir(argv);
+}
+
+void ew_ln(char *src, char *target){
+    if (link(src, target) <0){
+        perror("link");
+    }
 }
 
 void ew_cp(int argc, char *argv[]){
@@ -235,12 +253,6 @@ void ew_cat(int argc, char *argv[]){
    }
    fclose(fp);
 
-}
-
-void ew_redirect(char *input_tem[]){
-    int fd[2];
-    int fd_o;
-    char *p_p[2];
 }
 
 void run(int i, int t_opt, int argc, char **argv){
@@ -390,22 +402,10 @@ void selectCmd(int i, char **argv){
     else{}
 }
 
-void ew_pwd(){
-    char buf[1024];
-    getcwd(buf, 1024);
-    printf("%s\n", buf);
-}
-
 void pwd_print(){
     char buf[1024];
     getcwd(buf, 1024);
     printf("%s > ", buf);
-}
-
-void ew_ln(char *src, char *target){
-    if (link(src, target) <0){
-        perror("link");
-    }
 }
 
 void my_cp(char *src, char *target){
